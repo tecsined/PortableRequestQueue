@@ -21,7 +21,7 @@ const DEFAULT_RETRIES = 5
 
 func ExecuteRequest(request RequestData) error {
 	maxRetries := DEFAULT_RETRIES
-	retryDelay := 200 * time.Millisecond
+	retryDelay := 1 * time.Second
 
 	req, err := BuildHttpRequest(request)
 	if err != nil {

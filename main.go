@@ -4,9 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"os/signal"
 	"strings"
-	"syscall"
 
 	srvs "portqueue/services"
 )
@@ -21,12 +19,12 @@ func init() {
 
 func main() {
 
-	displaySummary()
-	startProcess := processRequestQuestion()
+	// displaySummary()
+	// startProcess := processRequestQuestion()
 
-	if !startProcess {
-		return
-	}
+	// if !startProcess {
+	// 	return
+	// }
 
 	requests, err := srvs.GetRequestData("requests.json")
 
@@ -35,8 +33,8 @@ func main() {
 		return
 	}
 
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGINT)
+	// signalChan := make(chan os.Signal, 1)
+	// signal.Notify(signalChan, syscall.SIGINT)
 
 	for _, request := range requests {
 		if !srvs.CompletedRequests[request.Id] {
@@ -47,7 +45,7 @@ func main() {
 		}
 	}
 
-	<-signalChan // Wait for SIGINT
+	// <-signalChan // Wait for SIGINT
 
 	srvs.SaveCompletedRequests()
 }

@@ -22,11 +22,6 @@
       "method": "PATCH",
       "url": "https://httpbin.org/status/200",
       "body": "200"
-    },
-    {
-      "id":"5",
-      "method": "DELETE",
-      "url": "https://httpbin.org/status/100"
     }
   ]
   
