@@ -42,8 +42,10 @@ func ExecuteRequest(request RequestData) error {
 			err = HandleResponseBody(resp)
 			return err
 		} else {
-			//HandleResponseBody(resp)
 			fmt.Printf("Retrying request to %s (attempt %d)...\n", request.URL, attempt+1)
+			if attempt == maxRetries-1 {
+				fmt.Printf("Retrying ended for this URL and process will continue if there are more requests")
+			}
 			time.Sleep(retryDelay)
 			retryDelay *= 2 // backoff
 			continue

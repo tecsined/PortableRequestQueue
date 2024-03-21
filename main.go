@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	srvs "portqueue/services"
@@ -18,6 +20,14 @@ func init() {
 }
 
 func main() {
+
+	displaySummary()
+	startProcess := processRequestQuestion()
+
+	if !startProcess {
+		return
+	}
+
 	requests, err := srvs.GetRequestData("requests.json")
 
 	if err != nil {
@@ -42,3 +52,19 @@ func main() {
 	srvs.SaveCompletedRequests()
 }
 
+func displaySummary() {
+	fmt.Println("Queue processor works using a request list stored in a json file name requests.json\n")
+	fmt.Println("Make sure that the file exist in the root of the application\n")
+	fmt.Println("***********************************************************************************\n")
+}
+
+func processRequestQuestion() bool {
+	const yes = "y"
+	const no = "n"
+	fmt.Println("Do you want to start the processing the request. Please type y for yes\n")
+	fmt.Println("If you dont type y the program will end\n")
+	in := bufio.NewReader(os.Stdin)
+	choice, _ := in.ReadString('\n')
+	choice = strings.ToLower(strings.TrimSpace(choice))
+	return choice == yes
+}
