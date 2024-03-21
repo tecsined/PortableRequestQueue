@@ -7,7 +7,7 @@ import (
 )
 
 func GetRequestData(filePath string) ([]RequestData, error) {
-	data, err := os.ReadFile(filePath) // Use the provided filePath argument
+	data, err := os.ReadFile(filePath) 
 	if err != nil {
 		return nil, err
 	}
@@ -49,4 +49,6 @@ func SaveCompletedRequests() {
 	if err != nil {
 		fmt.Println("Error saving completed requests:", err)
 	}
+
+	fmt.Println("Completed requets saved")
 }
