@@ -21,7 +21,7 @@ const DEFAULT_RETRIES = 5
 
 func ExecuteRequest(request RequestData) error {
 	maxRetries := DEFAULT_RETRIES
-	retryDelay := 500 * time.Millisecond
+	retryDelay := 200 * time.Millisecond
 
 	req, err := BuildHttpRequest(request)
 	if err != nil {
@@ -42,8 +42,8 @@ func ExecuteRequest(request RequestData) error {
 			err = HandleResponseBody(resp)
 			return err
 		} else {
-			HandleResponseBody(resp)
-			fmt.Printf("Retrying request (attempt %d)...\n", attempt+1)
+			//HandleResponseBody(resp)
+			fmt.Printf("Retrying request to %s (attempt %d)...\n", request.URL, attempt+1)
 			time.Sleep(retryDelay)
 			retryDelay *= 2 // backoff
 			continue
