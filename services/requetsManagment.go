@@ -108,17 +108,17 @@ func NewRequestsWorker() <-chan RequestData {
 
 func StartCrawling() {
 	var wg sync.WaitGroup
-	originalRequestsCh := NewRequestsWorker()
+	newRequestsCh := NewRequestsWorker()
 
 	wg.Add(1)
 	go func(reqsCh <-chan RequestData) {
-		for or := range reqsCh {
-			err := ExecuteRequest(or)
+		for r := range reqsCh {
+			err := ExecuteRequest(r)
 			if err != nil {
 				fmt.Println("Error executing request:", err)
 			}
 		}
 		wg.Done()
-	}(originalRequestsCh)
+	}(newRequestsCh)
 	wg.Wait()
 }
