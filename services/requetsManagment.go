@@ -125,6 +125,6 @@ func StartCrawling() {
 			}
 			wg.Done()
 		}(newRequestsCh)
-		wg.Wait()
 	}
+	wg.Wait()
 }
