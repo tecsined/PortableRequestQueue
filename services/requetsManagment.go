@@ -5,8 +5,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 )
+
+func init() {
+	err := LoadCompletedRequests()
+
+	if err != nil {
+		fmt.Println("Error loading completed requests:", err)
+	}
+}
 
 type RequestData struct {
 	Id     string `json:"id"`
@@ -42,15 +51,19 @@ func ExecuteRequest(request RequestData) error {
 			err = HandleResponseBody(resp)
 			return err
 		} else {
-			fmt.Printf("Retrying request to %s (attempt %d)...\n", request.URL, attempt+1)
-			if attempt == maxRetries-1 {
-				fmt.Printf("Retrying ended for this URL and process will continue if there are more requests")
-			}
-			time.Sleep(retryDelay)
+			trackRetries(request, attempt, maxRetries, retryDelay)
 			continue
 		}
 	}
 	return nil
+}
+
+func trackRetries(request RequestData, attempt int, maxRetries int, retryDelay time.Duration) {
+	fmt.Printf("Retrying request to %s (attempt %d)...\n", request.URL, attempt+1)
+	if attempt == maxRetries-1 {
+		fmt.Printf("Retrying ended for this URL and process will continue if there are more requests")
+	}
+	time.Sleep(retryDelay)
 }
 
 func BuildHttpRequest(request RequestData) (*http.Request, error) {
@@ -75,4 +88,37 @@ func HandleResponseBody(resp *http.Response) error {
 	fmt.Println("Response Body:", string(responseBody))
 	fmt.Println("----------")
 	return nil
+}
+
+func NewRequestsWorker() <-chan RequestData {
+	var outCh = make(chan RequestData)
+	requests, err := GetRequestData("requests.json")
+	if err != nil {
+		panic(fmt.Errorf("error reading requests.json: %w", err))
+	}
+
+	go func() {
+		for _, request := range requests {
+			outCh <- request
+		}
+		close(outCh)
+	}()
+	return outCh
+}
+
+func StartCrawling() {
+	var wg sync.WaitGroup
+	originalRequestsCh := NewRequestsWorker()
+
+	wg.Add(1)
+	go func(reqsCh <-chan RequestData) {
+		for or := range reqsCh {
+			err := ExecuteRequest(or)
+			if err != nil {
+				fmt.Println("Error executing request:", err)
+			}
+		}
+		wg.Done()
+	}(originalRequestsCh)
+	wg.Wait()
 }

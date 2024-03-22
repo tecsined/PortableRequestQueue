@@ -6,8 +6,14 @@ import (
 	"os"
 )
 
+func init() {
+	if err := LoadCompletedRequests(); err != nil {
+		fmt.Println("Error loading completed requests:", err)
+	}
+}
+
 func GetRequestData(filePath string) ([]RequestData, error) {
-	data, err := os.ReadFile(filePath) 
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +50,8 @@ func SaveCompletedRequests() {
 		fmt.Println("Error saving completed requests:", err)
 		return
 	}
-
-	err = os.WriteFile(completedRequestsFile, data, 0644)
+	const FILE_PERMISSION = 0644
+	err = os.WriteFile(completedRequestsFile, data, FILE_PERMISSION)
 	if err != nil {
 		fmt.Println("Error saving completed requests:", err)
 	}
