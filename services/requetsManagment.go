@@ -106,19 +106,25 @@ func NewRequestsWorker() <-chan RequestData {
 	return outCh
 }
 
+const DEFAULT_CONCURRENCY = 5
+
 func StartCrawling() {
 	var wg sync.WaitGroup
 	newRequestsCh := NewRequestsWorker()
 
-	wg.Add(1)
-	go func(reqsCh <-chan RequestData) {
-		for r := range reqsCh {
-			err := ExecuteRequest(r)
-			if err != nil {
-				fmt.Println("Error executing request:", err)
+	for range DEFAULT_CONCURRENCY {
+		wg.Add(1)
+		go func(reqsCh <-chan RequestData) {
+			for r := range reqsCh {
+				if !CompletedRequests[r.Id] {
+					err := ExecuteRequest(r)
+					if err != nil {
+						fmt.Println("Error executing request:", err)
+					}
+				}
 			}
-		}
-		wg.Done()
-	}(newRequestsCh)
-	wg.Wait()
+			wg.Done()
+		}(newRequestsCh)
+		wg.Wait()
+	}
 }
